@@ -1,9 +1,11 @@
 <!-- Content List -->
 <!-- 1. Game Container -->
-<!-- 2. Story Sections -->
-<!-- 3. Inventory Display -->
-<!-- 4. Buttons for Choices -->
-<!-- 5. JavaScript Link -->
+<!-- 2. Interactive Map -->
+<!-- 3. Story and Dialogue Sections -->
+<!-- 4. Inventory Display -->
+<!-- 5. Choices and Mini-Games -->
+<!-- 6. Audio Elements -->
+<!-- 7. JavaScript Link -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,17 +19,37 @@
   <!-- 1. Game Container -->
   <div id="game-container">
     <h1>Pirate Adventure: The Lost Treasure</h1>
-    <!-- 2. Story Sections -->
-    <div id="story-text"></div>
-    <!-- 3. Inventory Display -->
+    <!-- 2. Interactive Map -->
+    <div id="map-container">
+      <svg id="pirate-map" viewBox="0 0 500 500">
+        <image href="map-background.jpg" x="0" y="0" height="500" width="500" />
+        <circle id="island1" cx="150" cy="150" r="20" fill="transparent" stroke="gold" stroke-width="2" />
+        <circle id="island2" cx="350" cy="350" r="20" fill="transparent" stroke="gold" stroke-width="2" />
+        <!-- Additional map points -->
+      </svg>
+    </div>
+    <!-- 3. Story and Dialogue Sections -->
+    <div id="story-container">
+      <img src="ship.jpg" id="background-image" alt="Scene Background" />
+      <div id="dialogue-container">
+        <img src="character.jpg" alt="Character" id="character-portrait" />
+        <p id="story-text"></p>
+      </div>
+    </div>
+    <!-- 4. Inventory Display -->
     <div id="inventory">
       <h2>Inventory</h2>
       <ul id="inventory-list"></ul>
     </div>
-    <!-- 4. Buttons for Choices -->
+    <!-- 5. Choices and Mini-Games -->
     <div id="choices"></div>
+    <div id="mini-game"></div>
   </div>
-  <!-- 5. JavaScript Link -->
+  <!-- 6. Audio Elements -->
+  <audio id="background-music" loop>
+    <source src="pirate-theme.mp3" type="audio/mpeg">
+  </audio>
+  <!-- 7. JavaScript Link -->
   <script src="game.js"></script>
 </body>
 </html>
