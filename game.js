@@ -29,8 +29,8 @@ bgMusic.play();
 const storyData = {
   start: {
     text: "You are Captain Blackbeard, seeking the Lost Treasure. Where will you sail first?",
-    background: "ship.jpg",
-    character: "blackbeard.jpg",
+    background: "images/ship.jpg",
+    character: "images/blackbeard.jpg",
     choices: [
       { text: "Sail to Skull Island", action: () => enterMapMode('skullIsland') },
       { text: "Visit Port Royal", action: () => enterMapMode('portRoyal') }
@@ -38,8 +38,8 @@ const storyData = {
   },
   skullIsland: {
     text: "You arrive at Skull Island. It's rumored to be haunted.",
-    background: "skull-island.jpg",
-    character: "blackbeard.jpg",
+    background: "images/skull-island.jpg",
+    character: "images/blackbeard.jpg",
     choices: [
       { text: "Explore the caves", next: "exploreCaves" },
       { text: "Set up camp", next: "setCamp" }
@@ -47,8 +47,8 @@ const storyData = {
   },
   exploreCaves: {
     text: "Inside the cave, you find strange markings.",
-    background: "cave.jpg",
-    character: "blackbeard.jpg",
+    background: "images/cave.jpg",
+    character: "images/blackbeard.jpg",
     choices: [
       { text: "Investigate markings", action: () => {
         addToInventory('Ancient Map');
