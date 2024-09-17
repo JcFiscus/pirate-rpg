@@ -1,177 +1,130 @@
 // Content List
 // 1. Initial Game Setup
 // 2. Story Data and Branching
-// 3. Choice Handling
-// 4. Inventory Management
-// 5. Villain Encounters
-// 6. Endings Logic
+// 3. Interactive Map Handling
+// 4. Choice and Dialogue Handling
+// 5. Inventory Management
+// 6. Audio Management
+// 7. Timed Challenges
+// 8. Mini-Games Implementation
+// 9. Visual Branching Indicators
+// 10. Start Game
 
 // 1. Initial Game Setup
 let inventory = [];
+let currentScene = null;
 const storyText = document.getElementById('story-text');
 const choicesContainer = document.getElementById('choices');
 const inventoryList = document.getElementById('inventory-list');
+const backgroundImage = document.getElementById('background-image');
+const characterPortrait = document.getElementById('character-portrait');
+const bgMusic = document.getElementById('background-music');
+const miniGameContainer = document.getElementById('mini-game');
+
+// Start background music
+bgMusic.volume = 0.5;
+bgMusic.play();
 
 // 2. Story Data and Branching
-const storyData = [
-  // Index 0
-  {
-    text: "You are Captain Blackbeard, sailing toward a forgotten island rumored to hold the Lost Treasure. What do you do?",
+const storyData = {
+  start: {
+    text: "You are Captain Blackbeard, seeking the Lost Treasure. Where will you sail first?",
+    background: "ship.jpg",
+    character: "blackbeard.jpg",
     choices: [
-      { text: "Sail to the island", nextIndex: 1 },
-      { text: "Consult your crew", nextIndex: 2 }
+      { text: "Sail to Skull Island", action: () => enterMapMode('skullIsland') },
+      { text: "Visit Port Royal", action: () => enterMapMode('portRoyal') }
     ]
   },
-  // Index 1
-  {
-    text: "The island is within sight, but a storm is approaching. Will you continue or wait it out?",
+  skullIsland: {
+    text: "You arrive at Skull Island. It's rumored to be haunted.",
+    background: "skull-island.jpg",
+    character: "blackbeard.jpg",
     choices: [
-      { text: "Brave the storm", nextIndex: 3 },
-      { text: "Wait until morning", nextIndex: 4 }
+      { text: "Explore the caves", next: "exploreCaves" },
+      { text: "Set up camp", next: "setCamp" }
     ]
   },
-  // Index 2
-  {
-    text: "Your crew shares tales of a villainous pirate named Scarlet Sam, who is also after the treasure. What's your next move?",
+  exploreCaves: {
+    text: "Inside the cave, you find strange markings.",
+    background: "cave.jpg",
+    character: "blackbeard.jpg",
     choices: [
-      { text: "Set sail immediately", nextIndex: 1 },
-      { text: "Prepare the ship for battle", nextIndex: 5 }
+      { text: "Investigate markings", action: () => {
+        addToInventory('Ancient Map');
+        proceedTo('markings');
+      }},
+      { text: "Ignore and move on", next: "moveOn" }
     ]
   },
-  // Index 3
-  {
-    text: "The storm wrecks your ship on the island's shore. You survive but lose some supplies.",
-    choices: [
-      { text: "Search the wreckage", nextIndex: 6 },
-      { text: "Head into the jungle", nextIndex: 7 }
-    ]
-  },
-  // Index 4
-  {
-    text: "At dawn, you notice another ship anchoring nearby—it's Scarlet Sam! What do you do?",
-    choices: [
-      { text: "Confront Sam", nextIndex: 8 },
-      { text: "Sneak onto the island", nextIndex: 7 }
-    ]
-  },
-  // Index 5
-  {
-    text: "Your ship is ready for battle. Suddenly, Scarlet Sam attacks! Do you fight or flee?",
-    choices: [
-      { text: "Fight", nextIndex: 9 },
-      { text: "Flee into the storm", nextIndex: 3 }
-    ]
-  },
-  // Index 6
-  {
-    text: "You find a mysterious map piece in the wreckage.",
-    choices: [
-      { text: "Add map piece to inventory", nextIndex: 7, action: () => addToInventory('Map Piece') }
-    ]
-  },
-  // Index 7
-  {
-    text: "In the jungle, you encounter a wise old man who offers you a clue in exchange for a gold coin.",
-    choices: [
-      { text: "Give gold coin", nextIndex: 10, condition: () => inventory.includes('Gold Coin') },
-      { text: "Decline and move on", nextIndex: 11 }
-    ]
-  },
-  // Index 8
-  {
-    text: "Scarlet Sam laughs and challenges you to a duel.",
-    choices: [
-      { text: "Accept the duel", nextIndex: 12 },
-      { text: "Set a trap instead", nextIndex: 13 }
-    ]
-  },
-  // Index 9
-  {
-    text: "You engage in a fierce battle but are defeated.",
-    choices: [
-      { text: "Game Over - Restart", nextIndex: 0 }
-    ]
-  },
-  // Index 10
-  {
-    text: "The old man reveals a secret passage to the treasure.",
-    choices: [
-      { text: "Thank him and proceed", nextIndex: 14 }
-    ],
-    action: () => removeFromInventory('Gold Coin')
-  },
-  // Index 11
-  {
-    text: "You get lost in the jungle and fall into a trap set by Scarlet Sam.",
-    choices: [
-      { text: "Game Over - Restart", nextIndex: 0 }
-    ]
-  },
-  // Index 12
-  {
-    text: "In a dramatic duel, you defeat Scarlet Sam!",
-    choices: [
-      { text: "Claim the treasure", nextIndex: 14 }
-    ]
-  },
-  // Index 13
-  {
-    text: "Your trap fails, and Scarlet Sam captures you.",
-    choices: [
-      { text: "Game Over - Restart", nextIndex: 0 }
-    ]
-  },
-  // Index 14
-  {
-    text: "You find the Lost Treasure! Congratulations!",
-    choices: [
-      { text: "Play Again", nextIndex: 0 }
-    ]
-  }
-];
+  // More story nodes...
+};
 
-// 3. Choice Handling
-function displayStory(index) {
-  const story = storyData[index];
+// 3. Interactive Map Handling
+function enterMapMode(location) {
+  // Hide story elements
+  document.getElementById('story-container').style.display = 'none';
+  choicesContainer.innerHTML = '';
+  
+  // Show map
+  document.getElementById('map-container').style.display = 'block';
 
-  // Update story text
-  storyText.textContent = story.text;
+  // Handle map clicks
+  document.getElementById('island1').addEventListener('click', () => {
+    proceedTo('skullIsland');
+    document.getElementById('map-container').style.display = 'none';
+    document.getElementById('story-container').style.display = 'block';
+  });
 
+  // Additional map points...
+}
+
+// 4. Choice and Dialogue Handling
+function proceedTo(sceneKey) {
+  currentScene = storyData[sceneKey];
+  updateScene();
+}
+
+function updateScene() {
+  if (!currentScene) return;
+  
+  // Update text and images
+  storyText.textContent = currentScene.text;
+  backgroundImage.src = currentScene.background;
+  characterPortrait.src = currentScene.character;
+  
   // Clear previous choices
   choicesContainer.innerHTML = '';
-
-  // Execute any immediate actions
-  if (story.action) story.action();
-
-  // Handle inventory conditions
-  story.choices.forEach(choice => {
+  
+  // Display choices
+  currentScene.choices.forEach(choice => {
     if (choice.condition && !choice.condition()) {
-      // Skip rendering this choice
+      // Skip choice if condition not met
       return;
     }
 
     const button = document.createElement('button');
     button.textContent = choice.text;
     button.onclick = () => {
-      if (choice.action) choice.action();
-      displayStory(choice.nextIndex);
+      if (choice.action) {
+        choice.action();
+      } else if (choice.next) {
+        proceedTo(choice.next);
+      }
     };
     choicesContainer.appendChild(button);
   });
-
+  
   // Update inventory display
   updateInventory();
 }
 
-// 4. Inventory Management
+// 5. Inventory Management
 function addToInventory(item) {
   if (!inventory.includes(item)) {
     inventory.push(item);
   }
-}
-
-function removeFromInventory(item) {
-  inventory = inventory.filter(invItem => invItem !== item);
+  updateInventory();
 }
 
 function updateInventory() {
@@ -183,11 +136,61 @@ function updateInventory() {
   });
 }
 
-// 5. Villain Encounters
-// Scarlet Sam's character arc is intertwined within the storyData choices and outcomes.
+// 6. Audio Management
+function playSoundEffect(soundFile) {
+  const audio = new Audio(soundFile);
+  audio.play();
+}
 
-// 6. Endings Logic
-// The endings are determined by the player's choices leading to different story indices.
+// 7. Timed Challenges
+function timedChoice(sceneKey, timeout) {
+  let timer = setTimeout(() => {
+    alert('Time is up! You failed to act in time.');
+    proceedTo('failureScene');
+  }, timeout);
 
-// Start the game at the first story node
-displayStory(0);
+  // Display choices
+  choicesContainer.innerHTML = '';
+  currentScene.choices.forEach(choice => {
+    const button = document.createElement('button');
+    button.textContent = choice.text;
+    button.onclick = () => {
+      clearTimeout(timer);
+      if (choice.next) {
+        proceedTo(choice.next);
+      }
+    };
+    choicesContainer.appendChild(button);
+  });
+}
+
+// 8. Mini-Games Implementation
+function startMiniGame(gameType) {
+  miniGameContainer.innerHTML = '';
+  if (gameType === 'cannonGame') {
+    miniGameContainer.innerHTML = `
+      <p>Fire your cannons at Scarlet Sam's ship!</p>
+      <button onclick="fireCannon()">Fire!</button>
+      <p id="cannon-result"></p>
+    `;
+  }
+  // Additional mini-games...
+}
+
+function fireCannon() {
+  const hit = Math.random() > 0.5;
+  document.getElementById('cannon-result').textContent = hit ? 'Direct hit!' : 'Missed!';
+  if (hit) {
+    proceedTo('victoryScene');
+  } else {
+    proceedTo('defeatScene');
+  }
+}
+
+// 9. Visual Branching Indicators
+function updateStoryPathIndicator() {
+  // Implement SVG or Canvas-based visual representation of the story path
+}
+
+// 10. Start Game
+proceedTo('start');
